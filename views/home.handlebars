@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="/public/home.css"/>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js-cookie/js.cookie.js"></script>
+<script>
+(() => {
+	const uuid = Cookies.get('uuid') || "{{uuid}}"
+	Cookies.set('uuid', uuid)
+	console.log(`uuid: ${uuid}`)
+	const socket = io()
+	console.log("Connected")
+})()
+
+const start = () => {
+	
+}
+</script>
+<div class="flex">
+	<div>HOME</div>
+	<div id="controls" class="flex">
+		<div><button onclick="">Start</button></div>
+		<div><button onclick="">Stop</button></div>
+	</div>
+</div>
+<div class="flex">
+	VOILA
+</div>

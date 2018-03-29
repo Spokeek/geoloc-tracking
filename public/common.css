@@ -1,0 +1,32 @@
+html, body{
+	height: 100%;
+	margin: 0;
+}
+
+#main{
+	height: 100%;
+}
+
+#main > div{
+	width: 100%;
+}
+
+*[class^=flex]{
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+
+*[class^=flex] > *{
+	text-align: center;
+}
+
+.flex-col{
+	flex-direction: column;
+}
+
+
+button{
+	border-radius: 5px;
+	padding: 5px 10px;
+}
