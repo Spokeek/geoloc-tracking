@@ -1,0 +1,25 @@
+{
+  "name": "geoloc-tracking",
+  "version": "1.0.0",
+  "description": "\"# geoloc-tracking\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Spokeek/geoloc-tracking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Spokeek/geoloc-tracking/issues"
+  },
+  "homepage": "https://github.com/Spokeek/geoloc-tracking#readme",
+  "dependencies": {
+    "colors": "^1.2.1",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3"
+  }
+}
