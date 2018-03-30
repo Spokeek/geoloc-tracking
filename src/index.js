@@ -21,7 +21,7 @@ const io = require('socket.io')(http)
 
 // actual code
 app.get('/', (req, res) => {
-    res.render('home', {
+		res.render('home', {
 		title: "Client",
 		uuid: uuid(),
 		intervalUpdate: (15 * 1000) // in ms
@@ -29,9 +29,13 @@ app.get('/', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-  log.info('a user connected')
+	log.info('a user connected')
+	
+	socket.on('data', (data) => {
+		log.info(`user ${data.uuid} sended "${data.data}"`)
+	})
 })
 
 http.listen(PORT, () => {
-    log.info(`Client app started on port ${PORT} .`)
+		log.info(`Client app started on port ${PORT} .`)
 })

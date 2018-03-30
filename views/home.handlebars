@@ -2,31 +2,30 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js-cookie/js.cookie.js"></script>
 <script>
-(() => {
 	const uuid = Cookies.get('uuid') || "{{uuid}}"
 	Cookies.set('uuid', uuid)
 	console.log(`uuid: ${uuid}`)
+
 	const socket = io()
 	console.log("Connected")
-})()
 
-let loop = null
+	let loop = null
 
-const start = () => {
-	if(loop !== null){
-		return
+	const start = () => {
+		if(loop !== null){
+			return
+		}
+		console.log("start")
+		loop = setInterval(() => {
+			console.log("emit")
+			socket.emit('data', {uuid, data: "sample text"})
+		}, {{intervalUpdate}})
 	}
-	console.log("start")
-	loop = setInterval(() => {
-		console.log("emit")
-	}, {{intervalUpdate}})
-}
 
-const stop = () => {
-	clearInterval(loop)
-	loop = null
-}
-
+	const stop = () => {
+		clearInterval(loop)
+		loop = null
+	}
 </script>
 <div class="flex">
 	<div>HOME</div>
