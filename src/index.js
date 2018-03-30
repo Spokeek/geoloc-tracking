@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 	log.info('a user connected')
 	
 	socket.on('data', (data) => {
-		log.info(`user ${data.uuid} sended "${data.data}"`)
+		log.info(`user ${data.uuid} moved to "${data.latitude}:${data.longitude}"`)
 	})
 })
 

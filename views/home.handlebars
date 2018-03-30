@@ -2,30 +2,51 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js-cookie/js.cookie.js"></script>
 <script>
-	const uuid = Cookies.get('uuid') || "{{uuid}}"
-	Cookies.set('uuid', uuid)
-	console.log(`uuid: ${uuid}`)
-
-	const socket = io()
-	console.log("Connected")
-
-	let loop = null
-
+	let canUseGeoloc = true
+	let socket
+	let uuid
+	const errorWithGeoloc = () => {
+		canUseGeoloc = false
+		document.querySelectorAll("#controls button").forEach((btn) => btn.disabled = true)
+		alert("The geolocation api is not working, you can't use this  application !")
+	}
+	
+	if (!navigator.geolocation) {
+		errorWithGeoloc()	
+    }
+	else{
+		uuid = Cookies.get('uuid') || "{{uuid}}"
+		Cookies.set('uuid', uuid)
+		console.log(`uuid: ${uuid}`)
+		
+		socket = io()
+		console.log("Connected")
+	}
+	
+	let record = null
+	
 	const start = () => {
-		if(loop !== null){
-			return
+		if(canUseGeoloc && record === null){
+			const options = {
+				enableHighAccuracy: false,
+				timeout: 5000,
+				maximumAge: 0
+			}
+			record = navigator.geolocation.watchPosition((pos) => {
+				const {latitude, longitude} = pos.coords
+				console.log(`Your position changed to ${latitude}:${longitude}`)
+				socket.emit('data', {uuid, latitude, longitude})
+			}, (err) => {
+				errorWithGeoloc()
+			}, options);
 		}
-		console.log("start")
-		loop = setInterval(() => {
-			console.log("emit")
-			socket.emit('data', {uuid, data: "sample text"})
-		}, {{intervalUpdate}})
 	}
 
 	const stop = () => {
-		clearInterval(loop)
-		loop = null
+		navigator.geolocation.clearWatch(record)
+		record = null
 	}
+
 </script>
 <div class="flex">
 	<div>HOME</div>
