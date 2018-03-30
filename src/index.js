@@ -21,8 +21,11 @@ const io = require('socket.io')(http)
 
 // actual code
 app.get('/', (req, res) => {
-	
-    res.render('home', {title: "Client", uuid: uuid()})
+    res.render('home', {
+		title: "Client",
+		uuid: uuid(),
+		intervalUpdate: (15 * 1000) // in ms
+	})
 })
 
 io.on('connection', (socket) => {

@@ -10,15 +10,29 @@
 	console.log("Connected")
 })()
 
+let loop = null
+
 const start = () => {
-	
+	if(loop !== null){
+		return
+	}
+	console.log("start")
+	loop = setInterval(() => {
+		console.log("emit")
+	}, {{intervalUpdate}})
 }
+
+const stop = () => {
+	clearInterval(loop)
+	loop = null
+}
+
 </script>
 <div class="flex">
 	<div>HOME</div>
 	<div id="controls" class="flex">
-		<div><button onclick="">Start</button></div>
-		<div><button onclick="">Stop</button></div>
+		<div><button onclick="start()">Start</button></div>
+		<div><button onclick="stop()">Stop</button></div>
 	</div>
 </div>
 <div class="flex">
