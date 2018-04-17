@@ -3,10 +3,13 @@ require('dotenv').config()
 require('colors')
 const uuid = require('uuid/v4')
 const {log, logLevels} = require(`${__dirname}/utils`)
+const redis = require('redis')
 
 // constants
 const PORT = process.env.PORT || 3000
 const DEBUG_LEVEL = logLevels.includes(process.env.DEBUG_LEVEL) ? process.env.DEBUG_LEVEL : 'info' // not actually used for now
+const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1'
+const redisClient = redis.createClient({host: REDIS_HOST});
 
 // modules express
 const express = require('express')
@@ -37,5 +40,5 @@ io.on('connection', (socket) => {
 })
 
 http.listen(PORT, () => {
-		log.info(`Client app started on port ${PORT} .`)
+    log.info(`Client app started on port ${PORT} .`)
 })
