@@ -5,14 +5,17 @@
 	let canUseGeoloc = true
 	let socket
 	let uuid
-	const errorWithGeoloc = () => {
+	let map
+	
+	const errorWithGeoloc = (err) => {
+		console.error(err)
 		canUseGeoloc = false
 		document.querySelectorAll("#controls button").forEach((btn) => btn.disabled = true)
-		alert("The geolocation api is not working, you can't use this  application !")
+		console.log("The geolocation api is not working, you can't use this  application !")
 	}
 	
 	if (!navigator.geolocation) {
-		errorWithGeoloc()	
+		errorWithGeoloc("geoloc not enabled")	
     }
 	else{
 		uuid = Cookies.get('uuid') || "{{uuid}}"
@@ -29,15 +32,16 @@
 		if(canUseGeoloc && record === null){
 			const options = {
 				enableHighAccuracy: false,
-				timeout: 5000,
+				timeout: 7000,
 				maximumAge: 0
 			}
 			record = navigator.geolocation.watchPosition((pos) => {
-				const {latitude, longitude} = pos.coords
-				console.log(`Your position changed to ${latitude}:${longitude}`)
-				socket.emit('data', {uuid, latitude, longitude})
+				const {latitude: lat, longitude: lng} = pos.coords
+				console.log(`Your position changed to ${lat}:${lng}`)
+				socket.emit('data', {uuid, lat, lng})
+				map.panTo({lat, lng})
 			}, (err) => {
-				errorWithGeoloc()
+				errorWithGeoloc(err)
 			}, options);
 		}
 	}
@@ -47,6 +51,18 @@
 		record = null
 	}
 
+	function initMap() {
+		var center = {lat: 47.218371, lng: -1.553621};
+		map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 19,
+			center
+		});
+	}
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs-TwvgXaeH-c6f5nRaK1ddS6ZBeo_A3Y&callback=initMap">
+    </script>
+
 </script>
 <div class="flex">
 	<div>HOME</div>
@@ -55,6 +71,4 @@
 		<div><button onclick="stop()">Stop</button></div>
 	</div>
 </div>
-<div class="flex">
-	VOILA
-</div>
+<div id="map" class="flex"></div>
