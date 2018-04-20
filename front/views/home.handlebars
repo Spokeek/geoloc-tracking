@@ -42,6 +42,30 @@
 		field.value = ""
 	}
 
+	const notify = (data) => {
+		const {user_data, distance} = data
+		const distanceStr = distance < 1 ? `${Math.round(distance * 1000)} m` : `${Math.round(distance)} km`
+		const message = `The user ${user_data.username} is at ${distanceStr} from you`
+		const makeNotification = () => new Notification(message)
+		
+		if (!('Notification' in window)) {
+			alert("This browser does not support notifications")
+		}
+		else if (Notification.permission === 'granted') {
+			makeNotification()
+		}
+		else if (Notification.permission !== 'denied') {
+			Notification.requestPermission((permission) => {
+				if(!('permission' in Notification)) {
+					Notification.permission = permission
+				}
+				if (permission === 'granted') {
+					makeNotification()
+				}
+			})
+		}
+	}
+	
 	if (!navigator.geolocation) {
 		errorWithGeoloc("geoloc not enabled")	
     }
@@ -54,6 +78,7 @@
 		socket.on('connect', () => {
 			console.log("Connected")
 			socket.on('users_data', (users_data) => applyToMarkers(users_data))
+			socket.on('user_notify', (data) => notify(data))
 		})
 	}
 	

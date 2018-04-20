@@ -12,6 +12,8 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1'
 const REDIS_SAVE_INTERVAL = +process.env.REDIS_SAVE_INTERVAL || 60 * 0.5 // In seconds
 const USER_EMIT_INFO = +process.env.USER_EMIT_INFO || 2 // In seconds
 const MAP_DISPLAY_DISTANCE = +process.env.MAP_DISPLAY_DISTANCE || 50 // In kilometers
+const MAP_NOTIF_DISTANCE = +process.env.MAP_NOTIF_DISTANCE || 500 // In meters
+const TIME_BETWEEN_NOTIFY = +process.env.TIME_BETWEEN_NOTIFY || 30 // In seconds
 const GOOGLE_API_TOKEN = process.env.GOOGLE_API_TOKEN
 if(!GOOGLE_API_TOKEN){
 	log.error("You need to define the GOOGLE_API_TOKEN environement variable")
@@ -67,6 +69,7 @@ io.on('connection', (socket) => {
 		redisClient.set(`username_${uuid}`, username)
 	})
 	
+	let lastNoficiationTime = 0
 	setInterval(() => {
 		redisClient.smembers('uuids', (err, uuids) => {
 			if(err){
@@ -105,7 +108,15 @@ io.on('connection', (socket) => {
 					sockets_list.forEach(s => {
 						const {lat, lng} = users_data.find(ud => ud.uuid === s.uuid)
 						const users_data_filtred = users_data
-							.filter(ud => distanceInKmBetweenEarthCoordinates(lat, lng, ud.lat, ud.lng) <= MAP_DISPLAY_DISTANCE)
+							.filter(ud => {
+								const distance = distanceInKmBetweenEarthCoordinates(lat, lng, ud.lat, ud.lng)
+									log.info(`TIME: ${lastNoficiationTime}`)
+									if(ud.uuid !== s.uuid && distance <= (MAP_NOTIF_DISTANCE / 1000 && +(new Date()) > +(new Date((lastNoficiationTime * 1000) + TIME_BETWEEN_NOTIFY)))){
+										s.socket.emit('user_notify', {user_data: ud, distance})
+										lastNoficiationTime = +(new Date())
+									}
+								return distance <= MAP_DISPLAY_DISTANCE
+							})
 						log.debug(`for ${s.uuid}, we send ${users_data_filtred.length} data`)
 						s.socket.emit('users_data', users_data_filtred)
 					})
