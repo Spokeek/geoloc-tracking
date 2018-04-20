@@ -12,6 +12,11 @@ const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1'
 const REDIS_SAVE_INTERVAL = +process.env.REDIS_SAVE_INTERVAL || 60 * 0.5 // In seconds
 const USER_EMIT_INFO = +process.env.USER_EMIT_INFO || 2 // In seconds
 const MAP_DISPLAY_DISTANCE = +process.env.MAP_DISPLAY_DISTANCE || 50 // In kilometers
+const GOOGLE_API_TOKEN = process.env.GOOGLE_API_TOKEN
+if(!GOOGLE_API_TOKEN){
+	log.error("You need to define the GOOGLE_API_TOKEN environement variable")
+	process.exit(1)
+}
 
 // modules configuration
 const redisClient = redis.createClient({host: REDIS_HOST})
@@ -29,6 +34,7 @@ const io = require('socket.io')(http)
 app.get('/', (req, res) => {
 		res.render('home', {
 		uuid: uuid(),
+		googleApiToken: GOOGLE_API_TOKEN
 	})
 })
 

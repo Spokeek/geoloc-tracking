@@ -6,6 +6,7 @@ services:
       - 3000:3000
     environment:
         - REDIS_HOST=redis
+        - GOOGLE_API_TOKEN=token
     depends_on:
       - redis
   redis:
