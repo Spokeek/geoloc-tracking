@@ -9,5 +9,5 @@
 }
 
 #controls{
-	align-items: stretch;
+	justify-items: space-around;
 }
