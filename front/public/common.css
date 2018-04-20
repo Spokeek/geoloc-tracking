@@ -1,6 +1,7 @@
 html, body{
 	height: 100%;
 	margin: 0;
+	font-size: 24px;
 }
 
 #main{
@@ -29,4 +30,8 @@ html, body{
 button{
 	border-radius: 5px;
 	padding: 5px 10px;
+}
+
+input, button{
+	font-size: 20px;
 }

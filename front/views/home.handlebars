@@ -2,18 +2,46 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js-cookie/js.cookie.js"></script>
 <script>
-	let canUseGeoloc = true
 	let socket
 	let uuid
 	let map
+	let markers = []
+	let personalMarker = null
+	let record = null
 	
-	const errorWithGeoloc = (err) => {
-		console.error(err)
-		canUseGeoloc = false
-		document.querySelectorAll("#controls button").forEach((btn) => btn.disabled = true)
-		console.log("The geolocation api is not working, you can't use this  application !")
+	const errorWithGeoloc = (err) => console.error(err)
+	
+	const applyToMarkers = (positions) => {
+		markers.forEach((m) => m.setMap(null))
+		markers = positions.map(p => {
+			const marker = new google.maps.Marker({
+				position: {lat: +p.lat, lng: +p.lng},
+				title: p.uuid === uuid ? `${p.username} (you)` : p.username,
+				icon: p.uuid === uuid ? '/public/user_current.png' : '/public/user.png',
+				map
+			})
+			if(p.uuid === uuid){
+				personalMarker = marker
+				getUsernameField().placeholder = p.username
+			}
+			return marker
+		})
 	}
 	
+	const centerCamera = (position) => {
+		if(personalMarker || position){
+			map.panTo(personalMarker ? personalMarker.getPosition() : position)
+		}
+	}
+	
+	const getUsernameField = () => document.querySelector('#controls input[name="username"]')
+	
+	const changeUsername = () => {
+		const field = getUsernameField()
+		socket.emit('changeUsername', {uuid, username: field.value})
+		field.value = ""
+	}
+
 	if (!navigator.geolocation) {
 		errorWithGeoloc("geoloc not enabled")	
     }
@@ -23,52 +51,61 @@
 		console.log(`uuid: ${uuid}`)
 		
 		socket = io()
-		console.log("Connected")
+		socket.on('connect', () => {
+			console.log("Connected")
+			socket.on('users_data', (users_data) => applyToMarkers(users_data))
+		})
 	}
 	
-	let record = null
-	
-	const start = () => {
-		if(canUseGeoloc && record === null){
-			const options = {
-				enableHighAccuracy: false,
-				timeout: 7000,
-				maximumAge: 0
-			}
-			record = navigator.geolocation.watchPosition((pos) => {
-				const {latitude: lat, longitude: lng} = pos.coords
-				console.log(`Your position changed to ${lat}:${lng}`)
-				socket.emit('data', {uuid, lat, lng})
-				map.panTo({lat, lng})
-			}, (err) => {
-				errorWithGeoloc(err)
-			}, options);
-		}
-	}
-
-	const stop = () => {
-		navigator.geolocation.clearWatch(record)
-		record = null
-	}
-
 	function initMap() {
 		var center = {lat: 47.218371, lng: -1.553621};
 		map = new google.maps.Map(document.getElementById('map'), {
 			zoom: 19,
 			center
-		});
+		})
 	}
+	
+	const startPositioning = () => {
+		if(socket && record === null){
+			const options = {
+				enableHighAccuracy: true,
+				timeout: 5000,
+				maximumAge: 0
+			}
+			let isFirst = true
+			record = navigator.geolocation.watchPosition((pos) => {
+					const {latitude: lat, longitude: lng} = pos.coords
+					console.log(`Your position changed to ${lat}:${lng}`)
+					socket.emit('data', {uuid, lat, lng})
+					if(isFirst){
+						centerCamera({lat, lng})
+						isFirst = false
+					}
+				}, (err) => errorWithGeoloc(err)
+				, options
+			)
+		}
+	}
+	
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs-TwvgXaeH-c6f5nRaK1ddS6ZBeo_A3Y&callback=initMap">
     </script>
 
 </script>
-<div class="flex">
-	<div>HOME</div>
-	<div id="controls" class="flex">
-		<div><button onclick="start()">Start</button></div>
-		<div><button onclick="stop()">Stop</button></div>
+<div id="controls" class="flex">
+	<div></div>
+	<div></div>
+	<div  class="flex-col">
+		<div class="flex">
+			<div><button onclick="startPositioning()">Start positioning</button></div>
+			<div><button onclick="centerCamera()">Center camera</button></div>
+		</div>
+		<div class="flex">
+			<div>Username:</div>
+			<div><input name="username" placeholder="Anonymous"/></div>
+			<div><button onclick="changeUsername()">Update</button></div>
+		</div>
 	</div>
 </div>
 <div id="map" class="flex"></div>
