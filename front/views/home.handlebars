@@ -38,7 +38,9 @@
 	
 	const changeUsername = () => {
 		const field = getUsernameField()
-		socket.emit('changeUsername', {uuid, username: field.value})
+		if(field.value){
+			socket.emit('changeUsername', {uuid, username: field.value})
+		}
 		field.value = ""
 	}
 
@@ -121,8 +123,8 @@
 <div id="controls" class="flex">
 	<div><button onclick="startPositioning()">Start positioning</button></div>
 	<div><button onclick="centerCamera()">Center camera</button></div>
-	<div class="flex">
-		<div>Username:</div>
+	<div id="username" class="flex">
+		<div><b>Username:</b></div>
 		<div><input name="username" placeholder="Anonymous"/></div>
 		<div><button onclick="changeUsername()">Update</button></div>
 	</div>

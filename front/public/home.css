@@ -8,6 +8,10 @@
 	background-color: cyan;
 }
 
-#controls{
+#controls, #username{
 	justify-items: space-around;
+}
+
+#username > *:nth-of-type(2){
+	padding: 0 30px;
 }
